@@ -42,7 +42,8 @@ bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) cons
 	// 근이 있는 경우
     rec.t = root; // 현재의 근 저장
     rec.p = r.at(rec.t); // ray가 구에 hit한 점 P 저장
-    rec.normal = (rec.p - center) / radius; // 점 P에 대한 구의 법선 벡터 저장
+	vec3 outward_normal = (rec.p - center) / radius; // 점 P에 대한 구 표면의 외부로 나가는 법선 벡터 저장
+    rec.set_face_normal(r, outward_normal);
 
     return true;
 }
