@@ -13,7 +13,7 @@
 
 double hit_sphere(const point3& center, double radius, const ray& r) {
     vec3 oc = r.origin() - center; // = (A - C)
-    auto a = r.direction().length_squared(); // = a항 = (b dot b) -> 자기 자신(b)의 내적 = b길이^2
+    auto a = r.direction().length_squared(); // = a항 = (b dot b) -> 자기 자신(b)의 내적 = 자신(b)의 길이^2
     auto half_b = dot(oc, r.direction()); // b항 = 2 * (b dot (A - C)) -> half_b의 경우 : (b dot (A - C))
     auto c = oc.length_squared() - radius*radius; // c항 = ((A - C) dot (A - C)) - r^2
     auto discriminant = half_b*half_b - a*c; // a, b, c의 값을 알았으므로 판별식을 통해 구에 ray가 닿았는지 판단.
