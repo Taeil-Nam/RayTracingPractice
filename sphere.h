@@ -36,7 +36,7 @@ bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) cons
     if (root < t_min || t_max < root) { // 근이 있을 수 있는 범위가 아닌 경우
         root = (-half_b + sqrtd) / a; // root = 양수 근
         if (root < t_min || t_max < root) // 근이 있을 수 있는 범위가 아닌 경우
-            return false; // 근이 없음
+            return false; // 근이 없거나, ray와 가장 가까운 객체가 아님.
     }
 
 	// 근이 있는 경우

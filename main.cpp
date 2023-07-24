@@ -1,47 +1,23 @@
+#include "rtweekend.h"
+
 #include "color.h"
-#include "ray.h"
-#include "vec3.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
 #include <iostream>
 
-/* 구에서 t에 대한 이차 방정식 */
-// t^2 * (b dot b) + t * 2 * (b dot (A - C)) + ((A - C) dot (A - C) - r^2) = 0
+color ray_color(const ray& r, const hittable_list& world) {
+    hit_record rec; // ray hit시 정보를 담는 구조체 rec
 
-/* 근의 공식 */
-// 1. 일반 b인 경우 : (-b - sqrt(b*b - 4*a*c)) / (2.0 * a)
-// 2. half b인 경우 : (-b - sqrt(b*b - a*c)) / a
-
-double hit_sphere(const point3& center, double radius, const ray& r) {
-    vec3 oc = r.origin() - center; // = (A - C)
-    auto a = r.direction().length_squared(); // = a항 = (b dot b) -> 자기 자신(b)의 내적 = 자신(b)의 길이^2
-    auto half_b = dot(oc, r.direction()); // b항 = 2 * (b dot (A - C)) -> half_b의 경우 : (b dot (A - C))
-    auto c = oc.length_squared() - radius*radius; // c항 = ((A - C) dot (A - C)) - r^2
-    auto discriminant = half_b*half_b - a*c; // a, b, c의 값을 알았으므로 판별식을 통해 구에 ray가 닿았는지 판단.
-
-    // 안맞은 경우
-    if (discriminant < 0)
-        return (-1.0); // -1 반환
-    
-    // 맞은 경우
-    else
-        return (-half_b - sqrt(discriminant)) / a; // 근의 공식으로 작은 값의 t를 구해서 반환.
-}
-
-color ray_color(const ray& r) {
-    auto t = hit_sphere(point3(0,0,-1), 0.5, r); // center, r, ray
-    
-    // If hit shpere
-    if (t > 0.0)
-    {
-        // N = 구 표면의 법선 벡터의 단위 벡터.
-        vec3 N = unit_vector(r.at(t) - vec3(0,0,-1)); // ray가 맞은 표면의 점 - 구의 중심의 벡터를 단위 벡터로 변환
-        return 0.5*color(N.x()+1, N.y()+1, N.z()+1); // 음수 값일 수도 있으므로, 1을 더해주고 0.5를 곱한다.
+    // ray가 충돌한 객체가 있는 경우
+    if (world.hit(r, 0, infinity, rec)) {
+        return 0.5 * (rec.normal + color(1,1,1));   // 해당 객체의 법선(단위 벡터) 요소에 맞는 색으로 변환
     }
-    
-    // no hit shpere
-    vec3 unit_direction = unit_vector(r.direction());
-    t = 0.5*(unit_direction.y() + 1.0);
-    return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
+
+    // ray가 충돌한 객체가 없는 경우
+    vec3 unit_direction = unit_vector(r.direction());	// ray.dir의 단위 벡터로 변환
+    auto t = 0.5*(unit_direction.y() + 1.0);	// 0 <= t <= 1
+    return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);	// lerp (특정 색으로 blend)
 }
 
 int main() {
@@ -50,6 +26,11 @@ int main() {
     const auto aspect_ratio = 16.0 / 9.0; // 1.7777....
     const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio); // 225
+
+    // World
+    hittable_list world;    // 객체 리스트를 가지는 world 객체 생성
+    world.add(make_shared<sphere>(point3(0,0,-1), 0.5));        // 구 객체 1개 추가
+    world.add(make_shared<sphere>(point3(0,-100.5,-1), 100));   // 구 객체 1개 추가
 
     // Camera
     auto viewport_height = 2.0;
@@ -71,7 +52,7 @@ int main() {
             auto u = double(i) / (image_width-1); // 0.0 -> 1.0
             auto v = double(j) / (image_height-1); // 1.0 -> 0.0
             ray r(origin, lower_left_corner + u*horizontal + v*vertical - origin); // u, v = offset, viewport의 왼쪽 위부터 쏨
-            color pixel_color = ray_color(r); // ray가 닿은 곳의 색상 계산
+            color pixel_color = ray_color(r, world); // ray가 닿은 곳의 색상 계산
             write_color(std::cout, pixel_color); // 색상 적용.
         }
     }

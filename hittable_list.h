@@ -29,14 +29,14 @@ class hittable_list : public hittable {
 bool hittable_list::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
     hit_record temp_rec; // hit_record 객체 생성
     bool hit_anything = false; // hit한 객체가 있는지
-    auto closest_so_far = t_max; // ??
+    auto closest_so_far = t_max; // 여러 개의 객체를 hit한 경우, 가장 가까운 객체를 맞았을 때의 t값.
 
 	// 각 객체의 hit 유무 확인
     for (const auto& object : objects) {
         if (object->hit(r, t_min, closest_so_far, temp_rec)) {
             hit_anything = true;
             closest_so_far = temp_rec.t;
-            rec = temp_rec;
+            rec = temp_rec; // rec을 현재 객체의 rec으로 바꿈
         }
     }
 
