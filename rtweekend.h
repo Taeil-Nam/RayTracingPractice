@@ -25,9 +25,15 @@ inline double random_double() { // 실수 생성 함수
     return rand() / (RAND_MAX + 1.0);
 }
 
-inline double random_double(double min, double max) {
+inline double random_double(double min, double max) {   // [min, max) 범위로 실수를 생성해주는 함수
     // Returns a random real in [min,max).
     return min + (max-min)*random_double();
+}
+
+inline double clamp(double x, double min, double max) { // x값을 min, max 범위로 clamp 해주는 함수
+    if (x < min) return min;
+    if (x > max) return max;
+    return x;
 }
 
 // Common Headers
