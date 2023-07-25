@@ -7,12 +7,17 @@
 
 #include <iostream>
 
-color ray_color(const ray& r, const hittable_list& world) {
+color ray_color(const ray& r, const hittable_list& world, const int depth) {
     hit_record rec; // ray hit시 정보를 담는 구조체 rec
+
+	// 재귀가 50번 수행된 경우 (ray가 50번이나 충돌한 경우)
+	if (depth <= 0)
+		return color(0, 0, 0); // 검정색 출력
 
     // ray가 충돌한 객체가 있는 경우
     if (world.hit(r, 0, infinity, rec)) {
-        return 0.5 * (rec.normal + color(1,1,1));   // 해당 객체의 법선(단위 벡터) 요소에 맞는 색으로 변환
+		point3 target = rec.p + rec.normal + random_in_unit_sphere();	// P + N + S ??
+        return 0.5 * ray_color(ray(rec.p, target - rec.p), world, depth - 1);	// P에서 S로 쏜 ray로 ray_color() 재귀 호출
     }
 
     // ray가 충돌한 객체가 없는 경우
@@ -27,7 +32,8 @@ int main() {
     const auto aspect_ratio = 16.0 / 9.0; // 1.7777....
     const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio); // 225
-    const int samples_per_pixel = 100;
+    const int samples_per_pixel = 50;
+	const int max_depth = 50;
 
     // World
     hittable_list world;    // 객체 리스트를 가지는 world 객체 생성
@@ -50,7 +56,7 @@ int main() {
 				auto u = (i + random_double()) / (image_width-1);	// 한 픽셀 내부의 width에 대한 offset
                 auto v = (j + random_double()) / (image_height-1);	// 한 픽셀 내부의 height에 대한 offset
 				ray r = cam.get_ray(u, v);	// ray 계산
-				pixel_color += ray_color(r, world); // 한 픽셀 내부에 샘플 수 만큼 ray를 쏘고, 해당 ray들의 색상 합계를 구함
+				pixel_color += ray_color(r, world, max_depth); // 한 픽셀 내부에 샘플 수 만큼 ray를 쏘고, 해당 ray들의 색상 합계를 구함
 			}
 			write_color(std::cout, pixel_color, samples_per_pixel); // 색상 적용
         }
