@@ -15,8 +15,8 @@ color ray_color(const ray& r, const hittable_list& world, const int depth) {
 		return color(0, 0, 0); // 검정색 출력
 
     // ray가 충돌한 객체가 있는 경우
-    if (world.hit(r, 0, infinity, rec)) {
-		point3 target = rec.p + rec.normal + random_in_unit_sphere();	// P + N + S ??
+    if (world.hit(r, 0.001, infinity, rec)) {
+		point3 target = rec.p + rec.normal + random_in_unit_sphere();	// P + N + S
         return 0.5 * ray_color(ray(rec.p, target - rec.p), world, depth - 1);	// P에서 S로 쏜 ray로 ray_color() 재귀 호출
     }
 
