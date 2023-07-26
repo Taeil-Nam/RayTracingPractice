@@ -115,9 +115,13 @@ vec3 random_in_unit_sphere() {
     }
 }
 
-// 반지름이 1인 구 표면에 있는 무작위의 점 구하기
-vec3 random_unit_vector() {
-    return unit_vector(random_in_unit_sphere());
+// 중심이 P인 원에서 반사될 점 구하기
+vec3 random_in_hemisphere(const vec3& normal) { // 중심이 P인 반원이라고 생각
+    vec3 in_unit_sphere = random_in_unit_sphere(); // 원 내부의 무작위 점 구하기
+    if (dot(in_unit_sphere, normal) > 0.0) // 법선과 무작위의 점에 대한 벡터 내적
+        return in_unit_sphere;  // 같은 방향인 경우 바로 사용
+    else
+        return -in_unit_sphere; // 다른 방향인 경우 방향을 반대로 바꿔서 사용.
 }
 
 #endif
