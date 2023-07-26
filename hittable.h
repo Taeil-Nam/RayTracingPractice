@@ -1,12 +1,16 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
-#include "ray.h"
+#include "rtweekend.h"
+
+// 클래스 전방선언
+class material;
 
 // ray hit시 t, P, 법선 벡터를 저장할 구조체
 struct hit_record {
     point3 p;
     vec3 normal;
+    shared_ptr<material> mat_ptr;
     double t;
     bool front_face;
 

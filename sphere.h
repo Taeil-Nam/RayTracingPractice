@@ -7,7 +7,8 @@
 class sphere : public hittable { // 추상 클래스 hittable 상속 받음
     public:
         sphere() {} // 기본 생성자
-        sphere(point3 cen, double r) : center(cen), radius(r) {}; // 구의 중심, 반지름을 설정하는 생성자
+        sphere(point3 cen, double r, shared_ptr<material> m) 
+            : center(cen), radius(r), mat_ptr(m) {}; // 구의 중심, 반지름을 설정하는 생성자
 
 		// 가상 함수 hit (추상 클래스 hittable로 부터 물려 받은 함수)
         virtual bool hit(
@@ -16,6 +17,7 @@ class sphere : public hittable { // 추상 클래스 hittable 상속 받음
     public:
         point3 center; // 구의 중심
         double radius; // 반지름
+        shared_ptr<material> mat_ptr; // material 정보
 };
 
 /* 구에서 t에 대한 이차 방정식 */
@@ -44,6 +46,7 @@ bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) cons
     rec.p = r.at(rec.t); // ray가 구에 hit한 점 P 저장
 	vec3 outward_normal = (rec.p - center) / radius; // 점 P에 대한 구 표면의 외부로 나가는 법선 벡터 저장
     rec.set_face_normal(r, outward_normal);
+    rec.mat_ptr = mat_ptr;
 
     return true;
 }

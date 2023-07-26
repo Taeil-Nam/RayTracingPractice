@@ -4,6 +4,7 @@
 #include "hittable_list.h"
 #include "sphere.h"
 #include "camera.h"
+#include "material.h"
 
 #include <iostream>
 
@@ -16,8 +17,11 @@ color ray_color(const ray& r, const hittable_list& world, const int depth) {
 
     // ray가 충돌한 객체가 있는 경우
     if (world.hit(r, 0.001, infinity, rec)) {
-		point3 target = rec.p + random_in_hemisphere(rec.normal);
-        return 0.5 * ray_color(ray(rec.p, target - rec.p), world, depth - 1);	// P에서 S로 쏜 ray로 ray_color() 재귀 호출
+        ray scattered;
+        color attenuation;
+        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+		    return attenuation * ray_color(scattered, world, depth - 1);	// P에서 S로 쏜 ray로 ray_color() 재귀 호출
+        return color(0, 0, 0);
     }
 
     // ray가 충돌한 객체가 없는 경우
@@ -30,15 +34,22 @@ int main() {
 
     // Image
     const auto aspect_ratio = 16.0 / 9.0; // 1.7777....
-    const int image_width = 800;
+    const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio); // 225
     const int samples_per_pixel = 50;
 	const int max_depth = 50;
 
     // World
     hittable_list world;    // 객체 리스트를 가지는 world 객체 생성
-    world.add(make_shared<sphere>(point3(0,0,-1), 0.5));        // 구 객체 1개 추가
-    world.add(make_shared<sphere>(point3(0,-100.5,-1), 100));   // 구 객체 1개 추가
+    auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
+    auto material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
+    auto material_left   = make_shared<metal>(color(0.8, 0.8, 0.8));
+    auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2));
+
+    world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
+    world.add(make_shared<sphere>(point3( 0.0,    0.0, -1.0),   0.5, material_center));
+    world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
+    world.add(make_shared<sphere>(point3( 1.0,    0.0, -1.0),   0.5, material_right));
 
     // Camera
     camera cam;

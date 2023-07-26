@@ -52,6 +52,12 @@ class vec3 {
         inline static vec3 random(double min, double max) {
             return vec3(random_double(min,max), random_double(min,max), random_double(min,max));
         }
+
+        bool near_zero() const {
+        // 벡터의 모든 차원이 0과 아주 가까운 경우 true 반환.
+        const auto s = 1e-8;
+        return (fabs(e[0]) < s) && (fabs(e[1]) < s) && (fabs(e[2]) < s);
+        }
     public:
         double e[3];
 };
@@ -115,6 +121,11 @@ vec3 random_in_unit_sphere() {
     }
 }
 
+// 반지름이 1인 구 내부에 있는 무작위의 점 p에 대한 단위 벡터 구하기
+vec3 random_unit_vector() {
+    return unit_vector(random_in_unit_sphere());
+}
+
 // 중심이 P인 원에서 반사될 점 구하기
 vec3 random_in_hemisphere(const vec3& normal) { // 중심이 P인 반원이라고 생각
     vec3 in_unit_sphere = random_in_unit_sphere(); // 원 내부의 무작위 점 구하기
@@ -123,5 +134,11 @@ vec3 random_in_hemisphere(const vec3& normal) { // 중심이 P인 반원이라�
     else
         return -in_unit_sphere; // 다른 방향인 경우 방향을 반대로 바꿔서 사용.
 }
+
+// metal 재질 표면에 반사된 ray 구하기
+vec3 reflect(const vec3& v, const vec3& n) {
+    return v - 2*dot(v,n)*n; // vec3 - vec3로 해주기 위해 마지막에 n을 한번 더 곱해줌.
+}
+
 
 #endif
