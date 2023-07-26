@@ -115,4 +115,9 @@ vec3 random_in_unit_sphere() {
     }
 }
 
+// 반지름이 1인 구 표면에 있는 무작위의 점 구하기
+vec3 random_unit_vector() {
+    return unit_vector(random_in_unit_sphere());
+}
+
 #endif
