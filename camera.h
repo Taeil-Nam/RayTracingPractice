@@ -5,11 +5,14 @@
 
 class camera {
     public:
-        camera() {
-            auto aspect_ratio = 16.0 / 9.0;
-            auto viewport_height = 2.0;
+        camera(double vfov, double aspect_ratio)
+        {
+            auto theta = degrees_to_radians(vfov);  // vfov(시야각)을 radian으로 저장
+            auto h = tan(theta / 2);    // height의 절반 길이인 h 계산
+            auto viewport_height = 2.0 * h; // height = 2h
     		auto viewport_width = aspect_ratio * viewport_height; // 3.5
-    		auto focal_length = 1.0; // 초점거리 (카메라와 viewport의 거리)
+    		
+            auto focal_length = 1.0; // 초점거리 (카메라와 viewport의 거리)
 
 			origin = point3(0, 0, 0); // ray가 생성되는 곳 (카메라)
 			horizontal = vec3(viewport_width, 0, 0); // (3.5, 0, 0)
@@ -27,4 +30,5 @@ class camera {
         vec3 horizontal;
         vec3 vertical;
 };
+
 #endif
