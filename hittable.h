@@ -12,6 +12,8 @@ struct hit_record {
     vec3 normal;
     shared_ptr<material> mat_ptr;
     double t;
+    double u;
+    double v;
     bool front_face;
 
     inline void set_face_normal(const ray& r, const vec3& outward_normal) { // ray와 표면의 외부로 나가는 법선을 받음
